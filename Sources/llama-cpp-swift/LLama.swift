@@ -59,7 +59,7 @@ public actor LLama {
     continuation: AsyncThrowingStream<String, Error>.Continuation
   ) async throws {
     var isDone = false
-    let nLen: Int32 = 1024
+    let nLen: Int32 = maxTokens
     var nCur: Int32 = 0
     var nDecode: Int32 = 0
     var batch = llama_batch_init(512, 0, 1)
