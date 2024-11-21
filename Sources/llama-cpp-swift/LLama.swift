@@ -13,15 +13,17 @@ public actor LLama {
   /// Initializes a new instance of `LLama` with the specified model.
   ///
   /// - Parameter model: The language model to use for inference.
-  public init(model: Model) {
+  /// - Parameter temperature: The sampling temperature.
+  /// - Parameter seed: The seed controlling the randomness state of the sampler.
+  public init(model: Model, temperature: Float = 0.8, seed: UInt32 = 1234) {
     self.model = model
 
     // Initialize sampling
     let sparams = llama_sampler_chain_default_params()
     self.sampling = llama_sampler_chain_init(sparams)
-    llama_sampler_chain_add(self.sampling, llama_sampler_init_temp(0.8))
+    llama_sampler_chain_add(self.sampling, llama_sampler_init_temp(temperature))
     llama_sampler_chain_add(self.sampling, llama_sampler_init_softmax())
-    llama_sampler_chain_add(self.sampling, llama_sampler_init_dist(1234))
+    llama_sampler_chain_add(self.sampling, llama_sampler_init_dist(seed))
   }
 
   // MARK: - Inference
