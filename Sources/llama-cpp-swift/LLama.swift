@@ -168,7 +168,9 @@ public actor LLama {
         nCur: &nCur,
         nDecode: &nDecode
       )
-      continuation.yield(newTokenStr)
+      if case .terminated = continuation.yield(newTokenStr) {
+          break
+      }
     }
     continuation.finish()
   }
