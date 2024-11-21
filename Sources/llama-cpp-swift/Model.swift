@@ -5,7 +5,7 @@ import llama
 public final class Model {
   private let logger = Logger.llama
   let model: OpaquePointer
-  let context: OpaquePointer
+  private(set) var context: OpaquePointer
 
   public init(modelPath: String, contextSize: UInt32 = 2048) throws {
     llama_backend_init()
@@ -21,7 +21,15 @@ public final class Model {
       throw InitializationError(message: "Failed to load model", code: .failedToLoadModel)
     }
     self.model = model
+    self.context = try Self.initContext(contextSize: contextSize, model: model, logger: logger)
+  }
+  
+  public func reinitContext(contextSize: UInt32) throws {
+    llama_free(context)
+    context = try Self.initContext(contextSize: contextSize, model: model, logger: logger)
+  }
 
+  private static func initContext(contextSize: UInt32, model: OpaquePointer, logger: Logger) throws -> OpaquePointer {
     // Initialize context parameters
     let nThreads = max(1, min(8, ProcessInfo.processInfo.processorCount - 2))
     logger.debug("Using \(nThreads) threads")
@@ -37,7 +45,7 @@ public final class Model {
       throw InitializationError(
         message: "Failed to initialize context", code: .failedToInitializeContext)
     }
-    self.context = context
+    return context
   }
 
   deinit {
